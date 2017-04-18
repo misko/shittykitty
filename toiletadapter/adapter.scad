@@ -22,11 +22,11 @@ horn_c=2.5;
 horn_height=5;
 horn_arm=15;*/
 
-cup_top_radius=46;
+cup_top_radius=56;
 cup_bottom_radius=32;
 cup_height=114;	
 cup_lip=3;	
-cup_lip_height=1.5;
+cup_lip_height=0.5;
 cup_radius=cup_top_radius+cup_lip;
 s_l=24.5;
 s_h=30.5;
@@ -38,11 +38,11 @@ s_ph=s_p; //servo pivot height
 
 screw_r=3;
 
-horn_r1=2.1;
-horn_r2=3.7;
+horn_r1=2;
+horn_r2=3.9;
 horn_c=2.5;
 horn_height=5;
-horn_arm=15;
+horn_arm=13.5;
 
 module servo() {
     color("black") {
@@ -54,10 +54,12 @@ module servo() {
 }
 
 module horn() {
-	translate([0,0,-horn_height+horn_c]) hull() {
-		translate([-horn_arm-3,0,0]) cylinder(h=horn_height-horn_c,r1=horn_r1,r2=horn_r1);
-		translate([horn_arm+3,0,0]) cylinder(h=horn_height-horn_c,r1=horn_r1,r2=horn_r1);
-		cylinder(h=horn_height-horn_c,r1=horn_r2,r2=horn_r2);
+	translate([0,0,-horn_height+horn_c]) {
+        hull() {
+            translate([-horn_arm-3,0,0]) cylinder(h=horn_height-horn_c,r1=horn_r1,r2=horn_r1);
+            translate([horn_arm+3,0,0]) cylinder(h=horn_height-horn_c,r1=horn_r1,r2=horn_r1);
+            cylinder(h=horn_height-horn_c,r1=horn_r2,r2=horn_r2);
+        }
 	}
 	translate([0,0,-horn_height]) cylinder(h=horn_height,r1=horn_r2,r2=horn_r2);
 }
@@ -90,17 +92,17 @@ module servo_clamp(clamp_height=15,clamp_width=10) {
         difference() {
             color("thistle") {
                 translate([-s_p-clamp_width,-s_w/2,-s_h/2-s_ph-clamp_height/2]) { 
-                    translate([0,32+7,clamp_height-wiggle]) cube([s_l+clamp_width*2,s_w+clamp_width-5,clamp_height+cup_lip_height+wiggle]);
-                    translate([0,0,4]) cube([s_l+clamp_width*2,s_w+clamp_width+42-8,clamp_height-wiggle-4]);
+                    translate([0,20+7,clamp_height-wiggle]) cube([s_l+clamp_width*2,s_w+clamp_width-5,clamp_height+cup_lip_height+wiggle]);
+                    translate([0,0,4]) cube([s_l+clamp_width*2,s_w+clamp_width+30-8,clamp_height-wiggle-4]);
                 }
             }
             servo();
         }
         union () {
-            translate([-s_p-clamp_width+10,-s_w/2+49,-s_h/2-s_ph-clamp_height/2-1]) cylinder(h=50,r1=screw_r,r2=screw_r);
-            translate([-s_p-clamp_width+10,-s_w/2+49,-s_h/2-s_ph-clamp_height/2-1-20]) cylinder(h=50,r1=screw_r+2,r2=screw_r+2); //bigger hole
-            translate([-s_p-clamp_width+(s_l+clamp_width*2)-10,-s_w/2+49,-s_h/2-s_ph-clamp_height/2-1]) cylinder(h=50,r1=screw_r,r2=screw_r);
-            translate([-s_p-clamp_width+(s_l+clamp_width*2)-10,-s_w/2+49,-s_h/2-s_ph-clamp_height/2-1-20]) cylinder(h=50,r1=screw_r+2,r2=screw_r+2);
+            translate([-s_p-clamp_width+10,-s_w/2+36,-s_h/2-s_ph-clamp_height/2-1]) cylinder(h=50,r1=screw_r,r2=screw_r);
+            translate([-s_p-clamp_width+10,-s_w/2+36,-s_h/2-s_ph-clamp_height/2-1-25]) cylinder(h=50,r1=screw_r+2,r2=screw_r+2); //bigger hole
+            translate([-s_p-clamp_width+(s_l+clamp_width*2)-10,-s_w/2+36,-s_h/2-s_ph-clamp_height/2-1]) cylinder(h=50,r1=screw_r,r2=screw_r);
+            translate([-s_p-clamp_width+(s_l+clamp_width*2)-10,-s_w/2+36,-s_h/2-s_ph-clamp_height/2-1-25]) cylinder(h=50,r1=screw_r+2,r2=screw_r+2);
             translate([-s_p-clamp_width+10-2,0,-s_h/2-s_ph-clamp_height/2-1]) cylinder(h=50,r1=screw_r-1,r2=screw_r-1);
             translate([-s_p-clamp_width+(s_l+clamp_width*2)-10+2,0,-s_h/2-s_ph-clamp_height/2-1]) cylinder(h=50,r1=screw_r-1,r2=screw_r-1);
         }
@@ -126,24 +128,24 @@ module cup_holder(width=5,nipple=15) {
 	difference() {
 		union() {
 			difference() {
-				translate([-horn_arm-5,-horn_r2/2-5,-horn_height]) cube([(horn_arm+5)*2,horn_r2+10,horn_height]);
+				translate([-horn_arm,-horn_r2/2-5,-horn_height]) cube([(horn_arm+5)*2,horn_r2+10,horn_height]);
 				horn();
 			}
 			difference() {
 				hull() {
-					translate([(sqrt(2))*cup_radius,0,0]) {
+					translate([horn_arm+5+horn_r1+cup_radius,0,0]) {
 						translate([0,0,-5]) cylinder(h=5,r1=cup_top_radius+width,r2=cup_top_radius+width);
 					}
 					//the servo square
-					translate([-horn_arm-5,-horn_r2/2-5,-horn_height]) cube([(horn_arm+5)*2,horn_r2+10,horn_height]);
+					translate([-horn_arm,-horn_r2/2-5,-horn_height]) cube([(horn_arm+5)*2,horn_r2+10,horn_height]);
 					//nipple on far side
-					translate([sqrt(2)*cup_radius+cup_top_radius,0,-5]) cube([nipple,10,5]);
+					translate([horn_arm+5+horn_r1+cup_radius+cup_top_radius,0,-5]) cube([nipple,10,5]);
 				}
 				//the servo square
-				translate([-horn_arm-5,-horn_r2/2-5,-horn_height]) cube([(horn_arm+5)*2,horn_r2+10,horn_height]);
-			}
+				translate([-horn_arm,-horn_r2/2-5,-horn_height]) cube([(horn_arm+5)*2,horn_r2+10,horn_height]);
+			} 
 		}
-        translate([(sqrt(2))*cup_radius,0,0]) translate([0,0,-cup_height+cup_lip_height]) cylinder(h=cup_height,r1=cup_top_radius+1.5,r2=cup_top_radius+1.5);
+        translate([horn_arm+5+horn_r1+cup_radius,0,0]) translate([0,0,-cup_height+cup_lip_height]) cylinder(h=cup_height,r1=cup_top_radius+1.5,r2=cup_top_radius+1.5);
 		//translate([(sqrt(2))*cup_radius,0,0]) translate([0,0,cup_lip_height]) cup();
 	}
 }
@@ -213,14 +215,15 @@ rotate([0,0,0]) {
         //stepper
         //rotate([0,-90,0]) ir_sensor_mount();
         rotate([0,0,0]) { 
-            servo();
-            servo_clamp();
+            //servo();
+            //servo_clamp();
         }
         echo($t/100);
         
-        rotate([0,0,(-$t*90)]) {
+        //rotate([0,0,(-$t*90)]) {
+        rotate([0,0,(-70)]) {
             rotate([0,0,-45]) {
-                cup_holder(width=8,nipple=15);
+                //cup_holder(width=8,nipple=15);
             }
             translate([0,-cup_radius,0]){
                 //translate([cup_radius,0,cup_lip]) cup();
@@ -228,21 +231,30 @@ rotate([0,0,0]) {
         }
         
         //outter rail
+offset=12;
+        //bottom rail part
         
+        screwA=5;
+        screwB=-87;
         difference() {
             union() {
                 translate([0,0,-5-5]) rail(rail_height=5,inner_r=cup_top_radius+sqrt(2)*cup_radius,outter_r=cup_top_radius+sqrt(2)*cup_radius+25);
-                translate([0,0,-5]) rail(rail_height=5+cup_lip_height+2.5,inner_r=cup_top_radius+sqrt(2)*cup_radius+13,outter_r=cup_top_radius+sqrt(2)*cup_radius+25);
             }
             union() {
-                offset=19;
-                    //rotate([0,0,-180]) translate([0,-(cup_top_radius+sqrt(2)*cup_radius+23)-20,-11]) cube([1000,1000,1000]);
-                    rotate([0,0,0]) translate([10,-(cup_top_radius+sqrt(2)*cup_radius+offset)-20,-11]) cube([1000,1000,1000]);
-                    //rotate([0,0,0]) translate([0,-(cup_top_radius+sqrt(2)*cup_radius+32),-11]) cylinder(h=30,r1=screw_r,r2=screw_r);
-                    rotate([0,0,20]) translate([0,-(cup_top_radius+sqrt(2)*cup_radius+offset),-11]) cylinder(h=30,r1=screw_r,r2=screw_r);
-                    rotate([0,0,-20]) translate([0,-(cup_top_radius+sqrt(2)*cup_radius+offset),-11]) cylinder(h=30,r1=screw_r,r2=screw_r);
-                    rotate([0,0,70]) translate([0,-(cup_top_radius+sqrt(2)*cup_radius+offset),-11]) cylinder(h=30,r1=screw_r,r2=screw_r);
-                    rotate([0,0,-70]) translate([0,-(cup_top_radius+sqrt(2)*cup_radius+offset),-11]) cylinder(h=30,r1=screw_r,r2=screw_r);
+                rotate([0,0,screwA]) translate([0,-(cup_top_radius+sqrt(2)*cup_radius+offset),-10]) cylinder(h=5+cup_lip_height+1.3+5,r1=screw_r,r2=screw_r);
+                rotate([0,0,screwB]) translate([0,-(cup_top_radius+sqrt(2)*cup_radius+offset),-10]) cylinder(h=5+cup_lip_height+1.3+5,r1=screw_r,r2=screw_r);
+                    rotate([0,0,0]) translate([20,-(cup_top_radius+sqrt(2)*cup_radius+offset)-20,-11]) cube([1000,1000,1000]);
+            }
+        }
+        //screw tops
+        difference() {
+            union() {
+                    rotate([0,0,screwA]) translate([0,-(cup_top_radius+sqrt(2)*cup_radius+offset),-10+5]) cylinder(h=5+cup_lip_height+1.3,r1=screw_r+5,r2=screw_r+5);
+                    rotate([0,0,screwB]) translate([0,-(cup_top_radius+sqrt(2)*cup_radius+offset),-10+5]) cylinder(h=5+cup_lip_height+1.3,r1=screw_r+5,r2=screw_r+5);
+            }
+            union() {
+                rotate([0,0,screwA]) translate([0,-(cup_top_radius+sqrt(2)*cup_radius+offset),-10+5]) cylinder(h=5+cup_lip_height+1.3,r1=screw_r,r2=screw_r);
+                rotate([0,0,screwB]) translate([0,-(cup_top_radius+sqrt(2)*cup_radius+offset),-10+5]) cylinder(h=5+cup_lip_height+1.3,r1=screw_r,r2=screw_r);
             }
         }
         
