@@ -209,36 +209,36 @@ module cover() {
 
 
 
+        //outter rail
+	    offset=7;
+        //bottom rail part
+        
+        screwA=6;
+        screwB=-87;
 rotate([0,0,0]) {
     translate([-450,0,0]) {
         //%cover();
         //stepper
         //rotate([0,-90,0]) ir_sensor_mount();
         rotate([0,0,0]) { 
-            //servo();
-            //servo_clamp();
+            servo();
+            servo_clamp();
         }
         echo($t/100);
         
         //rotate([0,0,(-$t*90)]) {
         rotate([0,0,(-70)]) {
             rotate([0,0,-45]) {
-                //cup_holder(width=8,nipple=15);
+                cup_holder(width=8,nipple=15);
             }
             translate([0,-cup_radius,0]){
                 //translate([cup_radius,0,cup_lip]) cup();
             }
         }
         
-        //outter rail
-offset=12;
-        //bottom rail part
-        
-        screwA=5;
-        screwB=-87;
         difference() {
             union() {
-                translate([0,0,-5-5]) rail(rail_height=5,inner_r=cup_top_radius+sqrt(2)*cup_radius,outter_r=cup_top_radius+sqrt(2)*cup_radius+25);
+                translate([0,0,-5-5]) rail(rail_height=5,inner_r=cup_top_radius+sqrt(2)*cup_radius,outter_r=cup_top_radius+sqrt(2)*cup_radius+15);
             }
             union() {
                 rotate([0,0,screwA]) translate([0,-(cup_top_radius+sqrt(2)*cup_radius+offset),-10]) cylinder(h=5+cup_lip_height+1.3+5,r1=screw_r,r2=screw_r);
@@ -247,10 +247,11 @@ offset=12;
             }
         }
         //screw tops
+		
         difference() {
             union() {
-                    rotate([0,0,screwA]) translate([0,-(cup_top_radius+sqrt(2)*cup_radius+offset),-10+5]) cylinder(h=5+cup_lip_height+1.3,r1=screw_r+5,r2=screw_r+5);
-                    rotate([0,0,screwB]) translate([0,-(cup_top_radius+sqrt(2)*cup_radius+offset),-10+5]) cylinder(h=5+cup_lip_height+1.3,r1=screw_r+5,r2=screw_r+5);
+                    rotate([0,0,screwA]) translate([0,-(cup_top_radius+sqrt(2)*cup_radius+offset),-10+5]) cylinder(h=5+cup_lip_height+1.3,r1=screw_r+3.5,r2=screw_r+3.5);
+                    rotate([0,0,screwB]) translate([0,-(cup_top_radius+sqrt(2)*cup_radius+offset),-10+5]) cylinder(h=5+cup_lip_height+1.3,r1=screw_r+3.5,r2=screw_r+3.5);
             }
             union() {
                 rotate([0,0,screwA]) translate([0,-(cup_top_radius+sqrt(2)*cup_radius+offset),-10+5]) cylinder(h=5+cup_lip_height+1.3,r1=screw_r,r2=screw_r);
