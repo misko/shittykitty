@@ -1,3 +1,5 @@
+
+
 /**
  * BasicHTTPClient.ino
  *
@@ -124,7 +126,7 @@ void readFrom(byte address, int num, byte _buff[])
 
 int toilet_state=-1;
 int toilet_open=40;
-int toilet_closed=120;
+int toilet_closed=165;
 
 void wiggle() {
   servo.attach(servoPin);
@@ -135,6 +137,7 @@ void wiggle() {
   } else {
      inc = -1; 
   }
+  inc=0;
 
   int start_angle = 0;
   if (toilet_state==1) {
@@ -168,6 +171,9 @@ void move_toilet(int from, int to) {
 }
 void toilet(int x) {
   if (x==2) {
+    if (toilet_state==0) {
+      return;
+    }
     servo.attach(servoPin);
     servo.write(toilet_open);  
     delay(500);
@@ -212,7 +218,8 @@ void setup() {
     //ADXL345
   // i2c bus SDA = GPIO0; SCL = GPIO2
   //Wire.begin(0,2); 
-  Wire.begin(4,5);      
+  Wire.begin(4,5); 
+
   
   // Put the ADXL345 into +/- 2G range by writing the value 0x01 to the DATA_FORMAT register.
   // FYI: 0x00 = 2G, 0x01 = 4G, 0x02 = 8G, 0x03 = 16G
@@ -303,11 +310,9 @@ void loop() {
   unsigned int long_ir = analogRead(A0);
   unsigned int irA = digitalRead(irAPin);
   unsigned int irB = digitalRead(irBPin);
-  if (long_ir<270 && irA==0 && irB==0) {
-     toilet(0);
-  } else {
+
     //figure out if the seat is up
-    if (readAccel()>-8.8) {
+  if (readAccel()>-8.8) {
       seat_up++;
       delay_before_next=10;
     } else {
@@ -319,19 +324,24 @@ void loop() {
     if (seat_up<-5) {
       seat_up=-5;
     }
-    if (seat_up>7) {
-      toilet(2);
-    }
-    
-    if (seat_up<0) {
-      if (long_ir>300 || irA==0 || irB ==0) {
+  
+
+
+  if (seat_up>7) {
+    toilet(2);
+  } else if (long_ir<400 && (irA==1 || irB==1)) {
+     toilet(0);
+  } else if (seat_up<0) {
+      if (long_ir>400 || irA==1 || irB ==1) {
         wiggle(); 
         delay_before_next=0;
       }
       toilet(1);
     }
-  }
+
   Serial.print(long_ir); 
     delay(delay_before_next);
+
+    
 }
 
