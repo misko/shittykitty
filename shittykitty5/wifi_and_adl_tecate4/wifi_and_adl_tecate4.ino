@@ -1,5 +1,4 @@
 
-
 /**
  * BasicHTTPClient.ino
  *
@@ -219,8 +218,6 @@ void setup() {
   // i2c bus SDA = GPIO0; SCL = GPIO2
   //Wire.begin(0,2); 
   Wire.begin(4,5); 
-
-  
   // Put the ADXL345 into +/- 2G range by writing the value 0x01 to the DATA_FORMAT register.
   // FYI: 0x00 = 2G, 0x01 = 4G, 0x02 = 8G, 0x03 = 16G
   writeTo(DATA_FORMAT, 0x00);
@@ -341,7 +338,6 @@ void loop() {
 
   Serial.print(long_ir); 
     delay(delay_before_next);
-
     
 }
 
