@@ -78,6 +78,7 @@ def read_adc():
     r['d']=adc.read_adc(3, gain=GAIN)
     return r
 
+poop=0
 seat_up=0
 delay=50
 while (True):
@@ -91,23 +92,34 @@ while (True):
     next_delay=0
     if seat_up>10:
       motor('fastopen')
+      print "FAST OPEN SEAT"
   elif z>0.9 and seat_up>-10:
     seat_up=max(seat_up-1,-10)
     next_delay=0
     if seat_up<0:
       motor('fastclose')
+      print "FAST CLOSE SEAT"
   #print "   z = %.3fG" % ( axes['z'] )
 
-  if next_delay>0:
+  if z>0.9 and next_delay>0:
     #check the sensors
     s=read_adc()
-    s_a=s['a']>10000 and s['a']<20000
-    s_b=s['b']>10000 and s['a']<20000
-    s_c=s['c']>10000 and s['a']<20000
+    s_a=s['a']>8000 and s['a']<17000
+    s_b=s['b']>8000 and s['a']<17000
+    s_c=s['c']>8000 and s['a']<17000
     s_d=s['d']>15000
     if (s_a or s_c) and s_b and s_d:
-        motor('open')
-    print s_a,s_b,s_c,s_d
+        if poop>=30 and state!='open':
+            motor('open')
+        poop=min(30,poop+1)
+        next_delay=10
+    else:
+        if poop<0 and state!='close':
+            motor('close')
+        poop=max(poop-1,-10)
+        next_delay=10
+    print poop,s_a,s_b,s_c,s_d
+
   usleep(next_delay)
 
 
