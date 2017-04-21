@@ -109,7 +109,7 @@ while (True):
     s_c=s['c']>8000 and s['a']<17000
     s_d=s['d']>15000
     if (s_a or s_c) and s_b and s_d:
-        if poop>=30 and state!='open':
+        if poop>=30:
             motor('open')
         poop=min(30,poop+1)
         next_delay=10
