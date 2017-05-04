@@ -104,17 +104,20 @@ while (True):
   if z>0.9 and next_delay>0:
     #check the sensors
     s=read_adc()
-    s_a=s['a']>8000 and s['a']<17000
-    s_b=s['b']>8000 and s['a']<17000
-    s_c=s['c']>8000 and s['a']<17000
-    s_d=s['d']>15000
-    if (s_a or s_c) and s_b and s_d:
-        if poop>=30:
+    s_a=s['a']>8000 and s['a']<18000
+    s_b=s['b']>6000 and s['a']<18000
+    s_c=s['c']>8000 and s['a']<18000
+    s_d=s['d']>9000
+    #if (s_a or s_c) and s_b and s_d:
+    if (s_a or s_c) and s_d:
+        if poop>=30 and state!='open':
             motor('open')
         poop=min(30,poop+1)
         next_delay=10
     else:
         if poop<0 and state!='close':
+            motor('close')
+        elif poop<0 and (s_a or s_b or s_c or s_d):
             motor('close')
         poop=max(poop-1,-10)
         next_delay=10
