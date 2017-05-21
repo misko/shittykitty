@@ -126,10 +126,10 @@ while (True):
       print "FAST CLOSE SEAT"
   #print "   z = %.3fG" % ( axes['z'] )
   # Check each pin's last and current state to see if it was pressed or released.
-  filtered = [cap.filtered_data(i)<80 for i in range(12)]
-  spread,total = get_stat(filtered)
 
   if z>0.9 and next_delay>0:
+    filtered = [cap.filtered_data(i)<80 for i in range(12)]
+    spread,total = get_stat(filtered)
     #check the sensors
     if spread==3 and total==3:
         if poop>=30 and state!='open':
