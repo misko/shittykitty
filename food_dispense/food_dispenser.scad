@@ -7,12 +7,12 @@ wall_width=4;
 neck_width=35;
 neck_dish_offset=10;
 
-neck_main_slope=80;
+neck_main_slope=60;
 
 dish_height=20;
 dish_width=wall_width;
 
-cube([1,width,height]);
+//cube([1,width,height]);
 
 
 difference() {
@@ -40,10 +40,10 @@ union() {
 //dish neck drop outter
 translate([0,(width-neck_width)/2-wall_width,0]) cube([neck_width+2*wall_width,neck_width+2*wall_width,dish_height+neck_dish_offset]);
 translate([-neck_width/2,0,0]) hull() {
-//dish neck drop neck outter
-translate([neck_width+wall_width,(width-neck_width)/2-wall_width,0]) cube([10,neck_width+2*wall_width,dish_height]);
-//dish front 
-translate([depth-wall_width,0,0]) cube([10+wall_width,width,dish_height/2]);
+    //dish neck drop neck outter
+    translate([neck_width+wall_width,(width-neck_width)/2-wall_width,0]) cube([10,neck_width+2*wall_width,dish_height]);
+    //dish front 
+    translate([depth-wall_width,0,0]) cube([10+wall_width,width,dish_height/2]);
 }
 }
 union() {
