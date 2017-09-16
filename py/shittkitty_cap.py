@@ -3,7 +3,6 @@
 import random
 from Adafruit_PWM_Servo_Driver import PWM
 import time
-import Adafruit_ADS1x15
 from adxl345 import ADXL345
 import Adafruit_MPR121.MPR121 as MPR121
 
@@ -69,15 +68,40 @@ def motor(x):
 
 adxl345 = ADXL345()
 GAIN = 1
-adc = Adafruit_ADS1x15.ADS1115()
 
-def read_adc():
-    r={}
-    r['a']=adc.read_adc(2, gain=GAIN)
-    r['b']=adc.read_adc(0, gain=GAIN)
-    r['c']=adc.read_adc(1, gain=GAIN)
-    r['d']=adc.read_adc(3, gain=GAIN)
-    return r
+cap = MPR121.MPR121()
+if not cap.begin():
+    print('Error initializing MPR121.  Check your wiring!')
+    sys.exit(1)
+
+last_touched = cap.touched()
+
+def get_stat(d):
+    #try normal
+    mn=-1
+    mx=-1
+    total=0
+    for i in range(10):
+        if d[i]:
+            if mn==-1:
+                mn=i
+            mx=i
+            total+=1
+    spread=mx-mn
+    #lets try the other way
+    mn=-1
+    mx=-1
+    for i in range(10):
+        ii=(i-6)%10
+        if d[i]:
+            if mn==-1:
+                mn=ii
+            mx=ii
+    if abs(mx-mn)<spread:
+        spread=abs(mx-mn)
+    return spread+1,total
+
+
 
 poop=0
 seat_up=0
@@ -101,31 +125,28 @@ while (True):
       motor('fastclose')
       print "FAST CLOSE SEAT"
   #print "   z = %.3fG" % ( axes['z'] )
+  # Check each pin's last and current state to see if it was pressed or released.
 
   if z>0.9 and next_delay>0:
+    filtered = [cap.filtered_data(i)<80 for i in range(12)]
+    spread,total = get_stat(filtered)
     #check the sensors
-    s=read_adc()
-    s_a=s['a']>8000 and s['a']<18000
-    s_b=s['b']>8000 and s['b']<18000
-    s_c=s['c']>8000 and s['c']<18000
-    s_d=s['d']>8000
-    #if (s_a or s_c) and s_b and s_d:
-    if (s_a or s_c) and s_d:
+    if spread==3 and total==3:
         if poop>=30 and state!='open':
             motor('open')
             next_delay=10
         elif poop==30:
             motor('fastopen')
             next_delay=3000
-        poop=min(30,poop+4)
+        poop=min(30,poop+3)
     else:
         if poop<0 and state!='close':
             motor('close')
-        elif poop<0 and (s_a or s_b or s_c or s_d):
+        elif poop<0 and total>0:
             motor('close')
         poop=max(poop-1,-25)
         next_delay=10
-    print poop,s_a,s_b,s_c,s_d
+    print poop,spread,total
 
   usleep(next_delay)
 
