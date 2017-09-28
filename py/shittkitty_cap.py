@@ -69,14 +69,37 @@ def motor(x):
 adxl345 = ADXL345()
 GAIN = 1
 
-cap = MPR121.MPR121()
-if not cap.begin():
-    print('Error initializing MPR121.  Check your wiring!')
-    sys.exit(1)
+addresses=(0x5a,0x5b)
+print('Adafruit MPR121 Capacitive Touch Sensor Test')
+caps = []
 
-last_touched = cap.touched()
+# Create MPR121 instance.
+for address in addresses:
+    caps.append(MPR121.MPR121())
+    ret = caps[-1].begin(address=address)
+    if not ret:
+        print('Error initializing MPR121.  Check your wiring!')
+        sys.exit(1)
+    #caps[-1].set_thresholds(7,3)
+
+def get_touched():
+    t=[False]*24
+    idx=0
+    for cap in caps:
+        v=cap.touched()
+        for i in xrange(12):
+            pin_bit = 1 << i
+            if v & pin_bit:
+                if idx<12:
+                    t[idx]=True
+                else:
+                    t[36-idx-1]=True
+            idx+=1
+    return t
+
 
 def get_stat(d):
+    print d
     #try normal
     mn=-1
     mx=-1
@@ -128,10 +151,11 @@ while (True):
   # Check each pin's last and current state to see if it was pressed or released.
 
   if z>0.9 and next_delay>0:
-    filtered = [cap.filtered_data(i)<80 for i in range(12)]
+    #filtered = [cap.filtered_data(i)<81 for i in range(12)]
+    filtered = get_touched()
     spread,total = get_stat(filtered)
     #check the sensors
-    if spread==3 and total==3:
+    if sum(filtered)>0 or ((spread==3 and total==3) or (spread==4 and total==4)):
         if poop>=30 and state!='open':
             motor('open')
             next_delay=10
