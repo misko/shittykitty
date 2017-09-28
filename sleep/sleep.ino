@@ -144,6 +144,20 @@ void blink(int j) {
 }
 
 void setup() {
+  Serial.println("Connected to wifi");
+  Serial.println("Connected to wifi");
+  Serial.println("Connected to wifi");
+  Serial.println("Connected to wifi");
+  Serial.println("Connected to wifi");
+  Serial.println("Connected to wifi");
+  Serial.println("Connected to wifi");
+  Serial.println("Connected to wifi");
+  Serial.println("Connected to wifi");
+  Serial.println("Connected to wifi");
+  Serial.println("Connected to wifi");
+  Serial.println("Connected to wifi");
+  Serial.println("Connected to wifi");
+  Serial.println("Connected to wifi");
   blink(2);
   rtc.begin();
   pinMode(infraPIN, INPUT);
