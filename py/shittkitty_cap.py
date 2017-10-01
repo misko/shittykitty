@@ -31,7 +31,6 @@ def usleep(x):
 
 state='?'
 def motor(x):
-  print "MOTOR",x
   global state
   if x=='fastopen':
     pwm.setPWM(0,0,AservoMin)
@@ -175,10 +174,11 @@ while (True):
     else:
         if poop<0 and state!='close':
             motor('close')
-        elif poop<0 and total>0:
+            next_delay=10
+        elif poop<0 and total>1:
             motor('close')
+            next_delay=600
         poop=max(poop-1,-25)
-        next_delay=10
 
   usleep(next_delay)
 
