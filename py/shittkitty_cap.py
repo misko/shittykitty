@@ -174,11 +174,10 @@ while (True):
     else:
         if poop<0 and state!='close':
             motor('close')
-            next_delay=10
         elif poop<0 and total>1:
             motor('close')
-            next_delay=600
         poop=max(poop-1,-25)
+        next_delay=10
 
   usleep(next_delay)
 
