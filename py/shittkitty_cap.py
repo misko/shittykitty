@@ -11,8 +11,8 @@ pwm = PWM(0x40)
 # Note if you'd like more debug output you can instead run:
 #pwm = PWM(0x40, debug=True)
 
-AservoMin = 300  # Min pulse length out of 4096
-AservoMax = 525  # Min pulse length out of 4096
+AservoMin = 300+20  # Min pulse length out of 4096
+AservoMax = 525-20  # Min pulse length out of 4096
 
 def setServoPulse(channel, pulse):
   pulseLength = 1000000                   # 1,000,000 us per second
@@ -31,6 +31,7 @@ def usleep(x):
 
 state='?'
 def motor(x):
+  print "MOTOR",x
   global state
   if x=='fastopen':
     pwm.setPWM(0,0,AservoMin)
@@ -99,30 +100,34 @@ def get_touched():
 
 
 def get_stat(d):
-    print d
+    total=sum(d)
+    if total==0:
+        return 0,0,-1
+    lowest_touched=-1
     #try normal
     mn=-1
     mx=-1
     total=0
-    for i in range(10):
+    for i in range(12):
         if d[i]:
             if mn==-1:
                 mn=i
             mx=i
-            total+=1
     spread=mx-mn
+    if mn>0:
+        lowest_touched=mn
     #lets try the other way
     mn=-1
     mx=-1
-    for i in range(10):
-        ii=(i-6)%10
+    for i in range(12):
+        ii=(i-6)%12
         if d[i]:
             if mn==-1:
                 mn=ii
             mx=ii
     if abs(mx-mn)<spread:
         spread=abs(mx-mn)
-    return spread+1,total
+    return spread+1,sum(d),lowest_touched
 
 
 
@@ -149,13 +154,17 @@ while (True):
       print "FAST CLOSE SEAT"
   #print "   z = %.3fG" % ( axes['z'] )
   # Check each pin's last and current state to see if it was pressed or released.
-
   if z>0.9 and next_delay>0:
     #filtered = [cap.filtered_data(i)<81 for i in range(12)]
     filtered = get_touched()
-    spread,total = get_stat(filtered)
+    spread,total,lowest = get_stat(filtered)
+    spread_inner,total_inner,lowest_inner = get_stat([filtered[x*2+1] for x in xrange(12)])
+    spread_outter,total_outter,lowest_outter = get_stat([filtered[x*2+0] for x in xrange(12)])
+    print "SPREAD",spread_inner,lowest_inner,spread_outter,lowest_outter
     #check the sensors
-    if sum(filtered)>0 or ((spread==3 and total==3) or (spread==4 and total==4)):
+    inner_check=(spread_inner in (3,4) and total_inner in (2,3,4))
+    outter_check=spread_outter<2 or ((spread_outter==2 and total==2) or (spread_outter==3 and total==3))
+    if inner_check and outter_check:
         if poop>=30 and state!='open':
             motor('open')
             next_delay=10
@@ -170,7 +179,6 @@ while (True):
             motor('close')
         poop=max(poop-1,-25)
         next_delay=10
-    print poop,spread,total
 
   usleep(next_delay)
 
