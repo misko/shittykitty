@@ -113,17 +113,17 @@ def get_stat(d):
                 mn=i
             mx=i
     spread=mx-mn
-    if mn>0:
+    if mn>=0:
         lowest_touched=mn
     #lets try the other way
     mn=-1
     mx=-1
     for i in range(12):
-        ii=(i-6)%12
-        if d[i]:
+        ii=(i+6)%12
+        if d[ii]:
             if mn==-1:
-                mn=ii
-            mx=ii
+                mn=i
+            mx=i
     if abs(mx-mn)<spread:
         spread=abs(mx-mn)
     return spread+1,sum(d),lowest_touched
