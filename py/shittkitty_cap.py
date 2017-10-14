@@ -107,7 +107,7 @@ def get_stat(d):
     mn=-1
     mx=-1
     total=0
-    for i in range(12):
+    for i in range(len(d)):
         if d[i]:
             if mn==-1:
                 mn=i
@@ -118,8 +118,8 @@ def get_stat(d):
     #lets try the other way
     mn=-1
     mx=-1
-    for i in range(12):
-        ii=(i+6)%12
+    for i in range(len(d)):
+        ii=(i+len(d)/2)%len(d)
         if d[ii]:
             if mn==-1:
                 mn=i
@@ -159,11 +159,13 @@ while (True):
     spread,total,lowest = get_stat(filtered)
     spread_inner,total_inner,lowest_inner = get_stat([filtered[x*2+1] for x in xrange(12)])
     spread_outter,total_outter,lowest_outter = get_stat([filtered[x*2+0] for x in xrange(12)])
-    print "SPREAD",spread_inner,lowest_inner,spread_outter,lowest_outter
+    spread_full,total_full,lowest_full = get_stat(filtered)
+    print "SPREAD",spread_inner,lowest_inner,spread_outter,lowest_outter,spread_full
     #check the sensors
     inner_check=(spread_inner in (3,4) and total_inner in (2,3,4))
-    outter_check=spread_outter<2 or ((spread_outter==2 and total==2) or (spread_outter==3 and total==3))
-    if inner_check and outter_check:
+    outter_check=spread_outter<=3 # or ((spread_outter==2 and total==2) or (spread_outter==3 and total==3))i
+
+    if inner_check and outter_check and spread_full<=8:
         if poop>=30 and state!='open':
             motor('open')
             next_delay=10
