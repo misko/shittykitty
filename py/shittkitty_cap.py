@@ -1,5 +1,5 @@
 #!/usr/bin/python
-
+from datetime import datetime
 import random
 from Adafruit_PWM_Servo_Driver import PWM
 import time
@@ -25,6 +25,8 @@ def setServoPulse(channel, pulse):
   pwm.setPWM(channel, 0, pulse)
 
 pwm.setPWMFreq(60)                        # Set frequency to 60 Hz
+
+f=open('log.txt','a')
 
 def usleep(x):
   time.sleep(x/1000.0)
@@ -160,9 +162,12 @@ while (True):
     spread_inner,total_inner,lowest_inner = get_stat([filtered[x*2+1] for x in xrange(12)])
     spread_outter,total_outter,lowest_outter = get_stat([filtered[x*2+0] for x in xrange(12)])
     spread_full,total_full,lowest_full = get_stat(filtered)
-    print "SPREAD",spread_inner,lowest_inner,spread_outter,lowest_outter,spread_full
+    if spread_full>0:
+        s="%s\ts_in\t%d\ts_out\t%d\ts_full\t%d" % (str(datetime.now()),spread_inner,spread_outter,spread_full)
+        f.write(s+"\n")
+        print s
     #check the sensors
-    inner_check=(spread_inner in (3,4) and total_inner in (2,3,4))
+    inner_check=(spread_inner in (2,3,4) and total_inner in (2,3,4))
     outter_check=spread_outter<=3 # or ((spread_outter==2 and total==2) or (spread_outter==3 and total==3))i
 
     if inner_check and outter_check and spread_full<=8:
