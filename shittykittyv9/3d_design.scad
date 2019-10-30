@@ -920,25 +920,153 @@ bearing_width=11;
 bearing_inner=5/2-0.1; //radius
  
 bearing_nipple=1.5;
-module rack_rail(l) {
+
+module rail_thin(l) {
     teeth_height=2;
-    rack_height=8;
+    rack_height=6;
+    rack_length=l;
+    rack_width=5+0.1;
+    
+    rail_thick=3;
+    bearing_width_buffer=1;
+    difference() {
+    union() {
+                    //top
+                translate([-rack_length/2,-rack_height,rack_width]) {
+                    cube([rack_length,rack_height+bearing_width+bearing_width_buffer,rail_thick]);
+                }
+                //top
+                translate([-rack_length/2,-rack_height,rack_width-(rail_thick+bearing_height/2+bearing_inner)]) {
+                    cube([rack_length,rack_height+bearing_width+bearing_width_buffer,rail_thick*2+bearing_height/2+bearing_inner]);
+                }
+                
+            }
+            
+            union() {
+                //;
+                //translate([-rack_length/2-5,-bearing_nipple-0.5,rack_width/2-(2*(bearing_inner+hitch_buffer-bite+0.6))/2]) cube([rack_length+10,20,2*(bearing_inner+hitch_buffer-bite+0.6)]);
+                translate([-rack_length/2-5,-bearing_nipple-0.5,rack_width/2-(2*(bearing_inner+hitch_buffer-bite+0.6))/2]) cube([rack_length+10,20,2*(bearing_inner+hitch_buffer-bite+0.6)]);
+                //translate([-rack_length/2-5,-bearing_nipple-0.5,rack_width/2-(2*bearing_inner+1.5)/2]) cube([rack_length+10,20,2*bearing_inner+1.5]);
+                
+                translate([-rack_length/2+10,bearing_width/2,-rail_thick-1]) cylinder(rack_width+rail_thick*2+2,2.5,2.5);
+                translate([rack_length/2-10,bearing_width/2,-rail_thick-1]) cylinder(rack_width+rail_thick*2+2,2.5,2.5);
+           lip_width=3;
+                translate([-rack_length/2+10,bearing_width/2,-(rail_thick*2-lip_width)/2]) cylinder(rack_width+rail_thick*2-lip_width,3.5,3.5);
+                
+                translate([rack_length/2-10,bearing_width/2,-(rail_thick*2-lip_width)/2]) cylinder(rack_width+rail_thick*2-lip_width,3.5,3.5);
+        }
+    }
+    
+}
+
+module rail(l) {
+    teeth_height=2;
+    rack_height=6;
     rack_length=l;
     rack_width=bearing_height+0.1;
     
-    rail_thick=5;
+    rail_thick=3;
+    bearing_width_buffer=1;
+    difference() {
+    union() {
+                    //top
+                translate([-rack_length/2,-rack_height,rack_width]) {
+                    cube([rack_length,rack_height+bearing_width+bearing_width_buffer,rail_thick]);
+                }
+                //top
+                translate([-rack_length/2,-rack_height,rack_width-(rail_thick+bearing_height/2+bearing_inner)]) {
+                    cube([rack_length,rack_height+bearing_width+bearing_width_buffer,rail_thick*2+bearing_height/2+bearing_inner]);
+                }
+                
+            }
+            
+            union() {
+                //;
+                //translate([-rack_length/2-5,-bearing_nipple-0.5,rack_width/2-(2*(bearing_inner+hitch_buffer-bite+0.6))/2]) cube([rack_length+10,20,2*(bearing_inner+hitch_buffer-bite+0.6)]);
+                translate([-rack_length/2-5,-bearing_nipple-0.5,rack_width/2-(2*(bearing_inner+hitch_buffer-bite+0.6))/2]) cube([rack_length+10,20,2*(bearing_inner+hitch_buffer-bite+0.6)]);
+                //translate([-rack_length/2-5,-bearing_nipple-0.5,rack_width/2-(2*bearing_inner+1.5)/2]) cube([rack_length+10,20,2*bearing_inner+1.5]);
+                
+                translate([-rack_length/2+10,bearing_width/2,-rail_thick-1]) cylinder(rack_width+rail_thick*2+2,2.5,2.5);
+                translate([rack_length/2-10,bearing_width/2,-rail_thick-1]) cylinder(rack_width+rail_thick*2+2,2.5,2.5);
+           lip_width=3;
+                translate([-rack_length/2+10,bearing_width/2,-(rail_thick*2-lip_width)/2]) cylinder(rack_width+rail_thick*2-lip_width,3.5,3.5);
+                
+                translate([rack_length/2-10,bearing_width/2,-(rail_thick*2-lip_width)/2]) cylinder(rack_width+rail_thick*2-lip_width,3.5,3.5);
+        }
+    }
     
+}
+ 
+module rack_rail(l) {
+    teeth_height=2;
+    rack_height=6;
+    rack_length=l;
+    rack_width=bearing_height+0.13;
+    
+    rail_thick=3;
+    bearing_width_buffer=1;
     translate([0,0,rail_thick]) {
         difference() {
             union() {
                 //top
                 translate([-rack_length/2,-rack_height,rack_width]) {
-                    cube([rack_length,rack_height+bearing_width+4,rail_thick]);
+                    cube([rack_length,rack_height+bearing_width+bearing_width_buffer,rail_thick]);
                 }
                 
                 //bottom
                 translate([-rack_length/2,-rack_height,-rail_thick]) {
-                    cube([rack_length,rack_height+bearing_width+4,rail_thick]);
+                    cube([rack_length,rack_height+bearing_width+bearing_width_buffer,rail_thick]);
+                }
+                //angle track
+                translate([0,bearing_width/2,0]) {
+                    prism2(rack_length,4.5);
+                }
+                translate([0,bearing_width/2,rack_width]) {
+                    rotate([0,180,0]) {
+                        prism2(rack_length,4.5);
+                    }
+                }
+                
+              
+                translate([teeth_height,-teeth_height,0]){
+                    rack(modul=teeth_height, length=rack_length, height=rack_height-teeth_height, width=rack_width,   pressure_angle=20, helix_angle=0) ;
+                   };
+           }
+       union() {
+                translate([-rack_length/2-5,-bearing_nipple-0.5,rack_width/2-(2*bearing_inner+1.5)/2]) cube([rack_length+10,20,2*bearing_inner+1.5]);
+           
+                translate([rack_length/2-10,bearing_width/2,-rail_thick-1]) cylinder(rack_width+rail_thick*2+2,2.5,2.5);
+                translate([-rack_length/2+10,bearing_width/2,-rail_thick-1]) cylinder(rack_width+rail_thick*2+2,2.5,2.5);
+           lip_width=3;
+                translate([rack_length/2-10,bearing_width/2,-(rail_thick*2-lip_width)/2]) cylinder(rack_width+rail_thick*2-lip_width,3.5,3.5);
+                translate([-rack_length/2+10,bearing_width/2,-(rail_thick*2-lip_width)/2]) cylinder(rack_width+rail_thick*2-lip_width,3.5,3.5);
+       }
+       }
+   }
+   
+   
+}
+
+
+module rack_rail_thin(l) {
+    teeth_height=2;
+    rack_height=6;
+    rack_length=l;
+    rack_width=5+0.5;
+    
+    rail_thick=3;
+    bearing_width_buffer=1;
+    translate([0,0,rail_thick]) {
+        difference() {
+            union() {
+                //top
+                translate([-rack_length/2,-rack_height,rack_width]) {
+                    cube([rack_length,rack_height+bearing_width+bearing_width_buffer,rail_thick]);
+                }
+                
+                //bottom
+                translate([-rack_length/2,-rack_height,-rail_thick]) {
+                    cube([rack_length,10,rail_thick]);
                 }
                 //angle track
                 translate([0,bearing_width/2,0]) {
@@ -1064,13 +1192,49 @@ module carriage(dc) {
     }
 }
 
+
+module carriage2(dc) {  
+    
+    frame=10;
+    frame_height=2*(bearing_inner+hitch_buffer-bite);
+    holder_width=5;
+    hitch_length=dc+2*(bearing_width+bearing_nipple+holder_width);
+    
+    //color([1,0,0]) translate([-10,hitch_length-10-bearing_width-bearing_nipple,-20]) rotate([0,0,-180]) servo(20,40,40);
+    color([0,1,0]) difference() { 
+        //frame
+        union() {
+            
+            //single hitch easy
+            translate([dc,hitch_length,0]) rotate([-90,90,0]) bearing_hitch(dc+frame);
+            //translate([dc,hitch_length/2,0,0]) rotate([90,90,0]) bearing_hitch(dc+frame);
+            //complex single hitch
+            translate([25,hitch_length,0]) rotate([-90,90,0]) bearing_hitch(frame);
+            
+            
+            //translate([dc,hitch_length/2,0]) rotate([90,90,0]) double_bearing_hitch(hitch_length);
+            translate([-10,(bearing_width+bearing_nipple+holder_width)-holder_width,-(bearing_inner+hitch_buffer-bite)]) cube([frame,dc+holder_width*2,frame_height]);
+            translate([0,bearing_width+bearing_nipple,-(bearing_inner+hitch_buffer-bite)]) cube([dc,frame,frame_height]);
+            translate([0,hitch_length-(bearing_width+bearing_nipple)-frame,-(bearing_inner+hitch_buffer-bite)]) cube([dc,frame,frame_height]);
+            
+            //make the center
+            translate([dc/2,hitch_length/2,-frame_height/2]) cylinder(frame_height,dc/2+holder_width,dc/2+holder_width);
+            
+        }
+        
+        translate([dc/2,hitch_length/2,-frame_height/2-0.5]) cylinder(frame_height+1,dc/2,dc/2);
+    }
+}
+
 //translate([0,0,bearing_height/2]) rotate([90,90,0]) bearing_hitch(10);
 //rotate([90,0,0]) rack_rail(30);
 
-//carriage(105);
+//carriage2(105);
 //color([0,0,1]) translate([110/3,-30,-5/2-bearing_height/2]) rotate([0,0,0]) rack_rail(110);
 //color([0,0,1]) translate([110/3,150,-5/2-bearing_height/2]) rotate([0,0,180]) rack_rail(110);
-color([0,0,1]) translate([110/3,150,-5/2-bearing_height/2]) rotate([90,0,180]) rack_rail(110);
+//color([0,0,1]) translate([110/3,150,-5/2-bearing_height/2]) rotate([90,0,180]) rack_rail(220);
+color([0,0,1]) translate([110/3,150,-5/2-bearing_height/2]) rotate([90,0,180]) rack_rail_thin(220);
+//color([0,0,1]) translate([110/3,150,-5/2-bearing_height/2]) rotate([90,0,180]) rail_thin(220);
 
 //herringbone_gear (modul=2, tooth_number=25, width=8, bore=5, pressure_angle=20, helix_angle=0, optimized=false);
 
