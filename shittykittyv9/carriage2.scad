@@ -4,9 +4,8 @@ rail_thick=3;
 rail_depth=15;
 
 carriage_thick=3;
-carriage_bowl=110;
-carriage_slide_width=rail_depth*0.9;
-carriage_length=carriage_bowl+carriage_slide_width*2+15;
+carriage_bowl=105;
+carriage_length=carriage_bowl+rail_depth*0.7*2;
 carriage_side=(carriage_length-carriage_bowl)/2;
 screw_thick=3;
 screw_cap=4;
@@ -263,12 +262,12 @@ module carriage() {
             translate([carriage_bowl/2+carriage_side,carriage_bowl/2+carriage_side,-0.5]) cylinder(carriage_thick+1,carriage_bowl/2,carriage_bowl/2);
         }
         
-        /*translate([carriage_bowl/2+carriage_side,carriage_bowl/2+carriage_side,-0.5])  union() {
+        translate([carriage_bowl/2+carriage_side,carriage_bowl/2+carriage_side,-0.5])  union() {
             cylinder(carriage_thick+1,carriage_bowl/2+10,carriage_bowl/2+10);
             translate([-carriage_length/2,-carriage_length/2,-0.5]) cube([carriage_length/2,carriage_length,carriage_thick+2]);
-        }*/
+        }
     }
-    translate([carriage_slide_width,-20,-servo_h-servo_screw_lip_height-servo_mount_thick]) mirror([1,0,0]) servo_mount();
+    translate([gear_thick,-20,-servo_h-servo_screw_lip_height-servo_mount_thick]) mirror([1,0,0]) servo_mount();
 }
 
 module rail(l,teeth=true) {
@@ -309,7 +308,7 @@ servo_screw_lip_height=8;
 servo_screw_lip_offset=8;
 servo_screw_lip_thick=4;
 servo_screw_inner_offset=4;
-gear_thick=10;
+gear_thick=12;
 
 
 module servo() {
@@ -360,26 +359,26 @@ module servo_mount() {
 servo_head_tolerance=0.3;
 servo_head_thick=2.5;
 servo_head_middle=13+servo_head_tolerance;
-servo_head_tail=10+servo_head_tolerance;
+servo_head_tail=8+servo_head_tolerance;
 servo_head_length=55;
 module gear() {
     translate([0,0,gear_thick]) mirror([0,0,1]) difference() {
-        herringbone_gear (modul=2, tooth_number=24, width=gear_thick, bore=10, pressure_angle=20, helix_angle=0, optimized=false);
-        translate([0,-servo_head_middle/2,servo_head_thick/2]) linear_extrude(height = gear_thick-5, center = true, convexity = 10, twist = 0) polygon(points=[ [0,0], [-servo_head_length/2,(servo_head_middle-servo_head_tail)/2], [-servo_head_length/2,(servo_head_middle+servo_head_tail)/2], [0,servo_head_middle], [servo_head_length/2,(servo_head_middle+servo_head_tail)/2], [servo_head_length/2,(servo_head_middle-servo_head_tail)/2]]);
+        herringbone_gear (modul=2, tooth_number=23, width=gear_thick, bore=10, pressure_angle=20, helix_angle=0, optimized=false);
+        translate([0,-servo_head_middle/2,servo_head_thick/2]) linear_extrude(height = servo_head_thick, center = true, convexity = 10, twist = 0) polygon(points=[ [0,0], [-servo_head_length/2,(servo_head_middle-servo_head_tail)/2], [-servo_head_length/2,(servo_head_middle+servo_head_tail)/2], [0,servo_head_middle], [servo_head_length/2,(servo_head_middle+servo_head_tail)/2], [servo_head_length/2,(servo_head_middle-servo_head_tail)/2]]);
     }
 }
  
 
 //model
-//    color([1,0,0]) translate([servo_d+carriage_slide_width,4,-servo_h]) rotate([0,0,180]) servo();
-//color([1,1,1]) translate([carriage_length-carriage_slide_width,0,-rail_thick]) rail(rail_length,false);
-//color([1,1,1])translate([carriage_slide_width,rail_length,-rail_thick]) rotate([0,0,180]) rail(rail_length);
+//    color([1,0,0]) translate([servo_d+gear_thick,4,-servo_h]) rotate([0,0,180]) servo();
+//color([1,1,1]) translate([carriage_length-rail_depth*0.7,0,-rail_thick]) rail(rail_length,false);
+//color([1,1,1])translate([rail_depth*0.7,rail_length,-rail_thick]) rotate([0,0,180]) rail(rail_length);
 //color([0,0,1]) carriage();
-//color([0,1,0]) translate([servo_d+carriage_slide_width,4,-servo_h]) rotate([0,0,180]) translate([servo_d,servo_w/2,9.5]) rotate([90,0,90]) gear();
+//color([0,1,0]) translate([servo_d+gear_thick,4,-servo_h]) rotate([0,0,180]) translate([servo_d,servo_w/2,9.5]) rotate([90,0,90]) gear();
 
 //build
-//rotate([180,0,0]) color([0,0,1]) carriage();
+rotate([180,0,0]) color([0,0,1]) carriage();
 //color([1,1,1]) rotate([0,90,0])  rail(rail_length,false);
 //color([1,1,1])  rotate([0,90,0]) rail(rail_length);
-color([0,1,0])  rotate([0,0,0]) gear();
+//color([0,1,0])  rotate([0,0,0]) gear();
        
