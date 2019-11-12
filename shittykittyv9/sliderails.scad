@@ -309,7 +309,7 @@ servo_screw_lip_height=8;
 servo_screw_lip_offset=8;
 servo_screw_lip_thick=4;
 servo_screw_inner_offset=4;
-gear_thick=10;
+gear_thick=13;
 
 
 module servo() {
@@ -360,12 +360,12 @@ module servo_mount() {
 servo_head_tolerance=0.3;
 servo_head_thick=2.5;
 servo_head_middle=13+servo_head_tolerance;
-servo_head_tail=10+servo_head_tolerance;
+servo_head_tail=8+servo_head_tolerance;
 servo_head_length=55;
 module gear() {
     translate([0,0,gear_thick]) mirror([0,0,1]) difference() {
         herringbone_gear (modul=2, tooth_number=24, width=gear_thick, bore=10, pressure_angle=20, helix_angle=0, optimized=false);
-        translate([0,-servo_head_middle/2,servo_head_thick/2]) linear_extrude(height = gear_thick-5, center = true, convexity = 10, twist = 0) polygon(points=[ [0,0], [-servo_head_length/2,(servo_head_middle-servo_head_tail)/2], [-servo_head_length/2,(servo_head_middle+servo_head_tail)/2], [0,servo_head_middle], [servo_head_length/2,(servo_head_middle+servo_head_tail)/2], [servo_head_length/2,(servo_head_middle-servo_head_tail)/2]]);
+        translate([0,-servo_head_middle/2,servo_head_thick/2]) linear_extrude(height = gear_thick-servo_head_thick, center = true, convexity = 10, twist = 0) polygon(points=[ [0,0], [-servo_head_length/2,(servo_head_middle-servo_head_tail)/2], [-servo_head_length/2,(servo_head_middle+servo_head_tail)/2], [0,servo_head_middle], [servo_head_length/2,(servo_head_middle+servo_head_tail)/2], [servo_head_length/2,(servo_head_middle-servo_head_tail)/2]]);
     }
 }
  
