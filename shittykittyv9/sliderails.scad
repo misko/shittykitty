@@ -1,15 +1,15 @@
 
-rail_length=220;
-rail_thick=3;
+rail_length=190;
+rail_thick=2.3;
 rail_depth=15;
 
 carriage_thick=3;
 carriage_bowl=110+2.5+2.5;
-carriage_slide_width=rail_depth*0.9;
+carriage_slide_width=rail_depth*0.9+0.5;
 carriage_length=carriage_bowl+carriage_slide_width*2+15-2.5-2.5;
 carriage_side=(carriage_length-carriage_bowl)/2;
-screw_thick=3;
 screw_cap=4;
+g_pressure_angle=20;
 
 mount_height=8;
 
@@ -280,33 +280,33 @@ module carriage() {
         }
     }
     //translate([carriage_slide_width,-20+offset+servo_lip_width,-servo_h-servo_screw_lip_height-servo_mount_thick-mount_height]) mirror([1,0,0]) servo_mount();
-    translate([40,30,carriage_thick]) rotate([180,0,0]) stepper_mount();
+    translate([40+1.5,30,0]) rotate([180,0,0]) stepper_mount();
 }
 //servo_mount_x();
-module rail(l,teeth=true) {
+module rail(l,teeth=true,  screw_thick=3) {
         difference() {
             difference() {
                 //body
                 union() {
                     cube([rail_depth+rail_thick,l,rail_thick*2+carriage_thick]);
                     
-        rack_height=5;
-        teeth_height=2;
-        rack_width=rail_depth+rail_thick;
-        if (teeth)
-        translate([rack_width,l/2,-rail_thick]) rotate([-90,0,90]) rack(modul=teeth_height, length=l, height=rack_height-teeth_height, width=rack_width,   pressure_angle=20, helix_angle=0) ;
+                    rack_height=5;
+                    teeth_height=2;
+                    rack_width=rail_depth+rail_thick;
+                    if (teeth)
+                        translate([rack_width,l/2,-rail_thick]) rotate([-90,0,90]) rack(modul=teeth_height, length=l, height=rack_height-teeth_height, width=rack_width,   pressure_angle=g_pressure_angle, helix_angle=0) ;
                 }
                 //cutout
-                carriage_tolerance=1;
-                    translate([-1,-0.5,rail_thick-carriage_tolerance/2]) cube([rail_depth+1,l+1,carriage_thick+carriage_tolerance]);
+                carriage_tolerance=0.5;
+                translate([-1,-0.5,rail_thick-carriage_tolerance/2]) cube([rail_depth+1,l+1,carriage_thick+carriage_tolerance]);
             }
             
             union() {
-                lip=2;
-                    //screw
+                lip=1;
+                //screw
                 translate([rail_depth/2,screw_thick+5,-0.5]) cylinder(rail_thick*2+carriage_thick+1,screw_thick,screw_thick);
                 translate([rail_depth/2,l-screw_thick-5,-0.5]) cylinder(rail_thick*2+carriage_thick+1,screw_thick,screw_thick);
-                    //cap
+                //cap
                 translate([rail_depth/2,screw_thick+5,lip-10]) cylinder(rail_thick*2+carriage_thick-lip*2+10,screw_cap,screw_cap);
                 translate([rail_depth/2,l-screw_thick-5,lip-10]) cylinder(rail_thick*2+carriage_thick-lip*2+10,screw_cap,screw_cap);
             }
@@ -321,7 +321,7 @@ servo_screw_lip_height=8;
 servo_screw_lip_offset=8;
 servo_screw_lip_thick=4-0.8;
 servo_screw_inner_offset=4;
-gear_thick=13;
+gear_thick=17; //13;
 module servo() {
     difference() {
         union() {
@@ -396,48 +396,89 @@ servo_head_length=55;
 module gear() {
     translate([0,0,gear_thick]) mirror([0,0,1]) difference() {
         //herringbone_gear (modul=2, tooth_number=24, width=gear_thick, bore=10, pressure_angle=20, helix_angle=0, optimized=false);
-        herringbone_gear (modul=2, tooth_number=32, width=gear_thick, bore=10, pressure_angle=20, helix_angle=0, optimized=false);
+        herringbone_gear (modul=2, tooth_number=32, width=gear_thick, bore=10, pressure_angle=g_pressure_angle, helix_angle=0, optimized=false);
         translate([0,-servo_head_middle/2,servo_head_thick/2]) linear_extrude(height = gear_thick+10.5-9, center = true, convexity = 10, twist = 0) polygon(points=[ [0,0], [-servo_head_length/2,(servo_head_middle-servo_head_tail)/2], [-servo_head_length/2,(servo_head_middle+servo_head_tail)/2], [0,servo_head_middle], [servo_head_length/2,(servo_head_middle+servo_head_tail)/2], [servo_head_length/2,(servo_head_middle-servo_head_tail)/2]]);
     }
 }
  
 
+module gear_stepper() {
+    translate([0,0,gear_thick]) difference() {
+        cylinder(4,7.5,7.5);
+        translate([0,0,-0.1]) cylinder(4+1,3,3);
+    }
+    difference() {
+        translate([0,0,gear_thick]) mirror([0,0,1]) difference() {
+            //herringbone_gear (modul=2, tooth_number=17, width=gear_thick, bore=0, pressure_angle=20, helix_angle=0, optimized=false);
+            herringbone_gear (modul=2, tooth_number=15, width=gear_thick, bore=0, pressure_angle=g_pressure_angle, helix_angle=0, optimized=false);
+        }
+        translate([0,0,-0.1]) difference() {
+            arm_diameter=4.5+0.8;
+            cylinder(20,(arm_diameter)/2,(arm_diameter+0.3)/2);
+            translate([-5,1.5+0.3,-0.5]) cube([10,5,21]);
+        }
+    }
+}
 //model
 //    color([1,0,0]) translate([servo_d+carriage_slide_width,4,-servo_h]) rotate([0,0,180]) servo();
-//color([1,1,1]) translate([carriage_length-carriage_slide_width,0,-rail_thick]) rail(rail_length,false);
-//color([1,1,1])translate([carriage_slide_width,rail_length,-rail_thick]) rotate([0,0,180]) rail(rail_length);
-//color([0,0,1]) carriage();
+color([1,1,1]) translate([carriage_length-carriage_slide_width,0,-rail_thick]) rail(rail_length,false);
+color([1,1,1])translate([carriage_slide_width,rail_length,-rail_thick]) rotate([0,0,180]) rail(rail_length);
+color([0,0,1]) carriage();
 //color([0,1,0]) translate([servo_d+carriage_slide_width,4,-servo_h-mount_height]) rotate([0,0,180]) translate([servo_d,servo_w/2,9.5]) rotate([90,0,90]) gear();
+color("green") translate([38,-15,-stepper_h]) stepper();
+translate([-9,21-15,-stepper_h/2]) rotate([90,0,90]) gear_stepper();
 
 //build
-rotate([180,0,0]) color([0,0,1]) carriage();
+//intersection() {
+    //translate([15,-40,-5]) cube([50, 60, 50]);
+    //rotate([180,0,0]) color([0,0,1]) carriage();
+//}
 //color([1,1,1]) rotate([0,90,0])  rail(rail_length,false);
+//color([1,1,1]) rotate([0,90,0])  rail(rail_length,false);
+//color([1,1,1]) rotate([0,90,0])  rail(rail_length/2.2   ,false, screw_thick=1.7);
 //color([1,1,1])  rotate([0,90,0]) rail(rail_length);
 //color([0,1,0])  rotate([0,0,0]) gear();
        
+//rotate([0,0,0]) gear_stepper();
 
 
 motor_width=2;
-stepper_d=21;
-stepper_h=stepper_d*2;
-stepper_w=stepper_d*2;
-
+stepper_d=20;
+stepper_h=42;
+stepper_w=42;
+stepper_circle=23;
+stepper_circle_d=2+1+2;
+tol=0.5;
+module stepper() {
+    rotate([0,0,90]) {
+        translate([-tol/2,-tol/2,0]) cube([stepper_w+tol,stepper_d+tol,stepper_h]);
+        arm=20;
+        translate([stepper_w/2,stepper_d+arm,stepper_h/2]) rotate([90,0,0]) cylinder(arm,4.5/2,4.5/2);
+        translate([stepper_w/2,stepper_d+stepper_circle_d,stepper_h/2]) rotate([90,0,0]) cylinder(stepper_circle_d,stepper_circle/2,stepper_circle/2);
+      }
+}
+//stepper_mount();
 module stepper_mount() { 
-    //translate([stepper_d+motor_width+13.5,-34,0]) {
-    translate([0,0,carriage_thick]) {  
-        rotate([0,0,90]) {
-            difference() {
+    difference() {
+        translate([0,0,0])  rotate([0,0,90])  {  
                 difference() {
-                    translate([0,0,-carriage_thick]) cube([stepper_w+motor_width*2, stepper_d+motor_width*2,stepper_h/2+motor_width*2+carriage_thick]);
-                    translate([motor_width,2,motor_width]) cube([stepper_w, stepper_d+motor_width+0.1 ,stepper_h+10]);
+                    translate([-tol/2,-tol/2,-carriage_thick]) cube([stepper_w+motor_width*2+tol, stepper_d+motor_width*2+tol,42+carriage_thick]);
+                    translate([motor_width-tol/2,2-tol/2,motor_width]) cube([stepper_w+tol, stepper_d+motor_width+0.1+tol ,stepper_h+10]);
                 }
-            }
-            difference() {
-                translate([0,stepper_d+motor_width,0]) cube([stepper_w+motor_width*2,motor_width,motor_width+9]);
-                translate([5+motor_width,stepper_d+motor_width*2+0.1,5]) rotate([90,0,0]) cylinder(10,1.5,1.5);
-                translate([5+motor_width+stepper_w-10,stepper_d+motor_width*2+0.1,5]) rotate([90,0,0]) cylinder(10,1.5,1.5);
-            }
+                difference() {
+                    stepper_holes=11.0/2;
+                    translate([0,stepper_d+motor_width,-carriage_thick]) cube([stepper_w+motor_width*2,motor_width*2,stepper_h/2]);
+                    
+                    translate([motor_width+11/2,stepper_d+motor_width*3+0.1,stepper_holes]) rotate([90,0,0]) cylinder(10,1.5,1.5);
+                    translate([motor_width+stepper_w-11/2,stepper_d+motor_width*3+0.1,stepper_holes]) rotate([90,0,0]) cylinder(10,1.5,1.5);
+               
+                    translate([motor_width+11/2,stepper_d+motor_width*3+0.1,stepper_holes]) rotate([90,0,0]) cylinder(motor_width,3,3);
+                    translate([motor_width+stepper_w-11/2,stepper_d+motor_width*3+0.1,stepper_holes]) rotate([90,0,0]) cylinder(motor_width,3,3);
+                }
         }
-    //}
+        
+        translate([-motor_width,motor_width,0]) stepper();
     }
 }
+//color([0,1,0]) translate([servo_d+carriage_slide_width,4,-servo_h-mount_height]) rotate([0,0,180]) translate([servo_d,servo_w/2,9.5]) rotate([90,0,90]) 
+//translate([0,0,-6])cube([10,5,5]);
