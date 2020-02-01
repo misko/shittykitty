@@ -266,30 +266,35 @@ servo_lip_catch=3;
 servo_lip_width=3.8;
 
 
+        endstop_w=80;
+    carriage_extension=30;
     support_tol=0.15;
     rack_side_offset=0.5;
     //side rack
-    rack_depress=0.3;
+    rack_depress=0.3+0.6;
 module carriage(circle=true) {
-    translate([rack_width+rack_side_offset,carriage_length/2,-carriage_thick+rack_depress]) rotate([-90,0,90]) {
-        rack(modul=teeth_height, length=carriage_length, height=rack_height-teeth_height, width=rack_width/2,   pressure_angle=g_pressure_angle, helix_angle=30) ;
-        translate([0,0,rack_width]) mirror([0,0,1]) rack(modul=teeth_height, length=carriage_length, height=rack_height-teeth_height, width=rack_width/2,   pressure_angle=g_pressure_angle, helix_angle=30) ;
+    translate([rack_width+rack_side_offset,(carriage_length+carriage_extension)/2+2.7,-carriage_thick+rack_depress]) rotate([-90,0,90]) {
+        rack(modul=teeth_height, length=carriage_length+carriage_extension, height=rack_height-teeth_height, width=rack_width/2,   pressure_angle=g_pressure_angle, helix_angle=30) ;
+        translate([0,0,rack_width]) mirror([0,0,1]) rack(modul=teeth_height, length=carriage_length+carriage_extension, height=rack_height-teeth_height, width=rack_width/2,   pressure_angle=g_pressure_angle, helix_angle=30) ;
     }
     
     
     intersection() {
         difference() {
             union() {
-                cube([carriage_length-support_tol,carriage_length,carriage_thick+rail_thick-0.3-0.1]);
+                cube([carriage_length-support_tol,carriage_length+carriage_extension,carriage_thick+rail_thick-0.3-0.1]);
+                
                 //carriage support
                 translate([rack_width+rack_side_offset,0,-carriage_support]) cube([carriage_length-rail_depth-rack_width-(support_tol)-rack_side_offset-support_tol,carriage_length,carriage_support]);
             }
             union() {
+                xx=0.5;
                 translate([carriage_bowl/2+carriage_side,carriage_bowl/2+carriage_side,0]) {
-                translate([0,0,-0.5-carriage_support-50]) cylinder(carriage_thick+1+carriage_support+50+rail_thick,carriage_bowl/2-1.5,carriage_bowl/2-1.5);
-                translate([0,0,0.5+carriage_thick-0.3]) cylinder(2+0.001,carriage_bowl/2+4-1.5,carriage_bowl/2+4-1.5);
-                translate([0,0,0.5+carriage_thick-0.3-2.5]) cylinder(2.5+0.001,carriage_bowl/2-1.5,carriage_bowl/2+4-1.5);
+                    translate([0,0,-0.5-carriage_support-50]) cylinder(carriage_thick+1+carriage_support+50+rail_thick,carriage_bowl/2-1.5,carriage_bowl/2-1.5);
+                    translate([0,0,0.5+carriage_thick-0.3]) cylinder(2+0.001,carriage_bowl/2+4-1.5-xx,carriage_bowl/2+4-1.5-xx);
+                    translate([0,0,0.5+carriage_thick-0.3-2.5]) cylinder(2.5+0.001,carriage_bowl/2-1.5-xx,carriage_bowl/2+4-1.5-xx);
                 }
+                translate([(carriage_length-support_tol)/2-endstop_w/2,carriage_length,-0.05]) cube([endstop_w,carriage_extension+0.1,carriage_thick+rail_thick-0.3-0.1+0.1]);
             }
         }
         if (circle) { 
@@ -474,7 +479,7 @@ translate([13.5,200,0]) rotate([0,0,180]) {
 //build
 //intersection() {
     //translate([15,-40,-5]) cube([50, 60, 50]);
-    //rotate([180,0,0]) color([0,0,1]) carriage(circle=false);
+    rotate([180,0,0]) color([0,0,1]) carriage(circle=false);
 //}
 //color([1,1,1]) rotate([0,90,0])  rail(rail_length,false);
 //color([1,1,1]) rotate([0,90,0])  rail(rail_length,false);
@@ -490,7 +495,7 @@ translate([13.5,200,0]) rotate([0,0,180]) {
 
                         holder_rail_thick=4;
 color("red"){
-    translate([0,100,0]) rotate([0,0,0]) new_stepper_house();
+    //translate([0,100,0]) rotate([0,0,0]) new_stepper_house();
 }
 
 //translate([carriage_length+1,100+rail_length,0]) rotate([0,0,180]) new_stepper_rail();
