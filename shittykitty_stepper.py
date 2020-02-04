@@ -2,13 +2,16 @@ import sys
 import time
 
 
-import RPi.GPIO as GPIO
 import time
 from DRV8825 import DRV8825
-    
+
+#GPIO.setmode(GPIO.BCM)
     
 Motor1 = DRV8825(dir_pin=13, step_pin=19, enable_pin=12, mode_pins=(16, 17, 20))
 Motor1.SetMicroStep('hardward','fullstep')
+import RPi.GPIO as GPIO
+button_pin=26
+GPIO.setup(button_pin, GPIO.IN,pull_up_down = GPIO.PUD_UP)
 
 if len(sys.argv)!=2:
     print(sys.argv[0],"open/close")
@@ -16,9 +19,25 @@ if len(sys.argv)!=2:
 #kit.continuous_servo[1].throttle = -1
 cmd=sys.argv[1].lower()
 
+s=220*8
+s=100
+d=0.00001*8
+
+from time import sleep
+
+print("WTF",GPIO.input(button_pin))
+#
+#button = Button(4)
+#button = Button(2)
+#
+while GPIO.input(button_pin)==True:
+    #print("X")
+    Motor1.TurnStep(Dir='forward', steps=10, stepdelay = d)
+#sleep(1)
+Motor1.Stop()
 
 s=220*8
-#d=0.0001
+s=100
 d=0.00001*8
 if cmd in ('open',):
     print("open")
