@@ -28,6 +28,11 @@ class MPRboard:
                     res.append(x+chip_n*12)
         return res
 
+    def get_range(self):
+        touched=self.get_sense()
+        selected=[]
+
+
 
 accel = ADXL345.ADXL345()
 
@@ -42,9 +47,13 @@ print('Press Ctrl-C to quit.')
 last_touched = b.get_sense()
 acc_y=0
 while True:
+    #get which sensors are enabled
     current_touched = b.get_sense()
-    print(current_touched)
+    if len(current_touched)>0:
+        print(current_touched)
     last_touched = current_touched
+
+    #check the angle of the device
     x, y, z = accel.read()
     if y>10:
         acc_y+=1
