@@ -112,7 +112,7 @@ class MPR121(object):
         self._i2c_retry(self._device.write8, MPR121_MHDF, 0x01)
         self._i2c_retry(self._device.write8, MPR121_NHDF, 0x05)
         self._i2c_retry(self._device.write8, MPR121_NCLF, 0x01)
-        self._i2c_retry(self._device.write8, MPR121_FDLF, 0x00)
+        self._i2c_retry(self._device.write8, MPR121_FDLF, 0xFF)
         self._i2c_retry(self._device.write8, MPR121_NHDT, 0x00)
         self._i2c_retry(self._device.write8, MPR121_NCLT, 0x00)
         self._i2c_retry(self._device.write8, MPR121_FDLT, 0x00)
