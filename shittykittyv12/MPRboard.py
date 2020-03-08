@@ -47,10 +47,22 @@ class MPRboard:
                     res.append(x+chip_n*12)
         return res
 
-    def get_range(self):
-        touched=self.get_sense()
-        selected=[]
+    def get_spread(self,touched,sensors_per_ring=24):
+        touched = sorted(touched)
+        l=len(touched)
+        if l==0:
+            return 0,0
+        if l==1:
+            return 1,1
 
+        spreads = [ sensors_per_ring-((touched[(idx+1)%l]-touched[idx])%sensors_per_ring-1) for idx in range(l) ]
+        return min(spreads),l
+
+    def get_spreads(self,touched):
+        inner_spread,inner_total = self.get_spread([ x/2 for x in touched if x%2==1 ] )
+        outer_spread,outer_total = self.get_spread([ x/2 for x in touched if x%2==0 ] )
+        total_spread,total = self.get_spread([ x/2 for x in touched ], 24)
+        return {'inner_spread':inner_spread,'inner_total':inner_total,'outer_spread':outer_spread,'outer_total':outer_total, 'total_spread':total_spread, 'total':total}
 
     def state_change(self,to_state):
         if to_state==self.state:
@@ -73,25 +85,25 @@ print('Press Ctrl-C to quit.')
 
 
 last_touched = b.get_sense()
-acc_y=0
+acc_z=0
 while True:
     Motor1.Stop()
     #get which sensors are enabled
     current_touched = b.get_sense()
     if len(current_touched)>0:
-        print(current_touched)
+        print(b.get_spreads(current_touched))
     last_touched = current_touched
 
     #check the angle of the device
     x, y, z = accel.read()
-    #print(x,y,z,acc_y)
-    if y>10:
-        acc_y=min(acc_y+1,10)
+    
+    if z>10:
+        acc_z=min(acc_z+1,10)
     else:
-        acc_y=max(0,acc_y-3)
-    if acc_y>5:
+        acc_z=max(0,acc_z-3)
+    if acc_z>5:
         b.state_change('close')
-    if acc_y==0:
+    if acc_z==0:
         b.state_change('open')
 
     time.sleep(0.01)
