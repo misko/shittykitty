@@ -7,18 +7,26 @@ import RPi.GPIO as GPIO
 from time import sleep
    
 
+import atexit
+
 Motor1 = DRV8825(dir_pin=13, step_pin=19, enable_pin=12, mode_pins=(16, 17, 20))
 Motor1.SetMicroStep('hardward','fullstep')
 
 button_pin=26
 GPIO.setup(button_pin, GPIO.IN,pull_up_down = GPIO.PUD_UP)
 
-s=285*8
 #d=0.00001*8
-d=0.00001*8/2
+def exit_handler():
+        print('exit handler')
+        Motor1.Stop()
+        print('exit handler done')
+
+atexit.register(exit_handler)
 
 
 class MPRboard:
+    motor_steps=285*8
+    motor_delay=0.00001*8/2
     def __init__(self):
         self.caps = []
         for addy in [(0x5B,False,False),(0x5C,True,False),(0x5A,False,False),(0x5D,False,False)]:
@@ -29,7 +37,7 @@ class MPRboard:
         Motor1.Stop()
         self.state='open'
         self.state_change('close')
-
+        self.state_change('open')
 
     def get_sense(self):
         res=[]
@@ -69,41 +77,58 @@ class MPRboard:
             return
         if to_state=='close':
             while GPIO.input(button_pin)==True:
-                Motor1.TurnStep(Dir='forward', steps=20, stepdelay = d)
+                Motor1.TurnStep(Dir='forward', steps=20, stepdelay = self.motor_delay)
         if to_state=='open':
-            Motor1.TurnStep(Dir='backward', steps=s, stepdelay = d)
+            Motor1.TurnStep(Dir='backward', steps=self.motor_steps, stepdelay = self.motor_delay)
         Motor1.Stop()
         self.state=to_state
 
 accel = ADXL345.ADXL345()
 
 
-state = 'open'
 # Main loop to print a message every time a pin is touched.
 b = MPRboard()
 print('Press Ctrl-C to quit.')
 
 
-last_touched = b.get_sense()
 acc_z=0
+business_time=0
+
+threshold_max=30
+threshold_high=20
+threshold_low=10
+threshold_min=0
+
 while True:
     Motor1.Stop()
     #get which sensors are enabled
     current_touched = b.get_sense()
     if len(current_touched)>0:
-        print(b.get_spreads(current_touched))
-    last_touched = current_touched
+        d=b.get_spreads(current_touched)
+        if d['total_spread']<=9 and d['inner_spread']<=9 and d['outer_spread']<=6 and d['inner_total']>=3 and d['outer_total']>=2:
+            #looks good!
+            business_time=min(threshold_max, business_time+0.5) 
+        else:
+            business_time=max(business_time-0.5,threshold_min)
+    else:
+        business_time=max(business_time-0.5,threshold_min)
+
+    if business_time>=threshold_high:
+        b.state_change('close')
+    elif business_time>0 and business_time<threshold_low:
+        b.state_change('open')
 
     #check the angle of the device
     x, y, z = accel.read()
     
     if z>10:
-        acc_z=min(acc_z+1,10)
+        acc_z=min(acc_z+2,threshold_max)
     else:
-        acc_z=max(0,acc_z-3)
-    if acc_z>5:
+        acc_z=max(threshold_min,acc_z-3)
+
+    if acc_z>threshold_high:
         b.state_change('close')
-    if acc_z==0:
+    elif acc_z>threshold_min and acc_z<threshold_low:
         b.state_change('open')
 
     time.sleep(0.01)
