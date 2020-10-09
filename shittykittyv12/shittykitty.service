@@ -1,0 +1,15 @@
+[Unit]
+Description=ShittKitty
+After=network.target
+StartLimitIntervalSec=0
+
+[Service]
+Type=simple
+Restart=always
+RestartSec=3
+User=root
+WorkingDirectory=/home/pi/shittykitty
+ExecStart=/usr/bin/python3 /home/pi/shittykitty/MPRboard.py
+
+[Install]
+WantedBy=multi-user.target
