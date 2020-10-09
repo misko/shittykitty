@@ -94,37 +94,62 @@ print('Press Ctrl-C to quit.')
 acc_z=0
 business_time=0
 
-threshold_max=30
-threshold_high=20
-threshold_low=10
+threshold_max=130
+threshold_high=100
+threshold_low=20
 threshold_min=0
 
+up_down_ratio=1.0 # how much faster to move the cup up or down, higher number means moves up faster
+
+accel_ratio=2.0/3.0
+
+hist=[]
+
+def get_log_entry(d,business_time,current_touched):
+    t=time.time()
+    cols=['total_spread','inner_spread','outer_spread','inner_total','outer_total']
+    return ",".join([str(t)]+[ str(d[col]) if col in d else -1 for col in cols ] + [str(current_touched).replace(',',' ')])
+
+
 while True:
+    d={}
     Motor1.Stop()
     #get which sensors are enabled
     current_touched = b.get_sense()
     if len(current_touched)>0:
         d=b.get_spreads(current_touched)
+        #print(d,business_time)
         if d['total_spread']<=9 and d['inner_spread']<=9 and d['outer_spread']<=6 and d['inner_total']>=3 and d['outer_total']>=2:
             #looks good!
-            business_time=min(threshold_max, business_time+0.5) 
+            business_time=min(threshold_max, business_time+up_down_ratio) 
         else:
-            business_time=max(business_time-0.5,threshold_min)
+            business_time=max(business_time-1.0/up_down_ratio,threshold_min)
     else:
-        business_time=max(business_time-0.5,threshold_min)
+        business_time=max(business_time-1.0/up_down_ratio,threshold_min)
+
+
+    if business_time>0 or len(current_touched)>0:
+        hist.append(get_log_entry(d,business_time,current_touched))
+    elif len(hist)>0:
+        print("writting hist")
+        f = open("shittykittylog.csv", "a")
+        f.write("\n".join(hist)+"\n")
+        f.close()
+        hist=[]
 
     if business_time>=threshold_high:
         b.state_change('close')
     elif business_time>0 and business_time<threshold_low:
         b.state_change('open')
 
+
     #check the angle of the device
     x, y, z = accel.read()
     
     if z>10:
-        acc_z=min(acc_z+2,threshold_max)
+        acc_z=min(acc_z+40*accel_ratio,threshold_max)
     else:
-        acc_z=max(threshold_min,acc_z-3)
+        acc_z=max(threshold_min,acc_z-40*(1.0/accel_ratio))
 
     if acc_z>threshold_high:
         b.state_change('close')
