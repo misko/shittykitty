@@ -108,7 +108,7 @@ hist=[]
 def get_log_entry(d,business_time,current_touched):
     t=time.time()
     cols=['total_spread','inner_spread','outer_spread','inner_total','outer_total']
-    return ",".join([str(t)]+[ str(d[col]) if col in d else -1 for col in cols ] + [str(current_touched).replace(',',' ')])
+    return [t]+[ d[col] if col in d else -1 for col in cols ] + [str(current_touched).replace(',',' ')]
 
 
 while True:
@@ -130,10 +130,10 @@ while True:
 
     if business_time>0 or len(current_touched)>0:
         hist.append(get_log_entry(d,business_time,current_touched))
-    elif len(hist)>0:
+    elif len(hist)>0 and (time.time()-hist[-1][0])>10:
         print("writting hist")
         f = open("shittykittylog.csv", "a")
-        f.write("\n".join(hist)+"\n")
+        f.write("\n".join([ ",".join(map(str,line)) for line in hist])+"\n")
         f.close()
         hist=[]
 
