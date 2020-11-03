@@ -137,10 +137,15 @@ while True:
         f.close()
         hist=[]
 
-    if business_time>=threshold_high:
-        b.state_change('close')
-    elif business_time>0 and business_time<threshold_low:
-        b.state_change('open')
+
+    training=True
+    if not training:
+        if business_time>=threshold_high:
+            #b.state_change('close')
+            pass
+        elif business_time>0 and business_time<threshold_low:
+            #b.state_change('open')
+            pass
 
 
     #check the angle of the device
